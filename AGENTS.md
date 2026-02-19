@@ -27,22 +27,37 @@ make lint                    # Run ansible-lint with production profile
 
 ### Testing
 ```bash
-make test.sanity             # Run ansible-test sanity (requires Docker)
-make testfull                # Run both lint and sanity tests
+make test.sanity             # Run ansible-test sanity
+make molecule                # Run molecule tests for all roles
+make molecule role=alloy     # Run molecule tests for a specific role
+make test                    # Run lint, sanity, and molecule tests
 ```
 
-### Running a Single Test
-For sanity tests on specific files:
+### Running Molecule Commands
+
+Molecule is used for integration testing. Tests are located in `extensions/molecule/` with shared configuration.
+
 ```bash
-ansible-test sanity --docker -v --test <test_name> <path/to/file>
+# Run full test sequence (destroy, create, prepare, converge, idempotence, verify, destroy)
+make molecule role=alloy
+
+# Run just the converge step (apply the role)
+make molecule.converge role=alloy
+
+# Run just the verify step
+make molecule.verify role=alloy
+
+# Test idempotency (run converge twice)
+make molecule.idempotence role=alloy
+
+# Create test instance
+make molecule.create role=alloy
+
+# Destroy test instance
+make molecule.destroy role=alloy
 ```
 
-Common test names: `import`, `compile`, `validate-modules`, `shellcheck`, `yamllint`, `ansible-doc`
-
-Example - run yamllint on a specific file:
-```bash
-ansible-test sanity --docker -v --test yamllint plugins/modules/my_module.py
-```
+Molecule uses **podman** for testing. The **idempotence** step automatically runs the role twice to verify no changes occur on the second run.
 
 ### Building
 ```bash
@@ -76,6 +91,17 @@ make clean                   # Remove build/, tests/, and .ansible/ directories
 ├── changelogs/
 │   ├── config.yaml        # antsibull-changelog configuration
 │   └── fragments/         # Changelog fragments
+├── extensions/
+│   └── molecule/          # Molecule integration tests
+│       ├── config.yml     # Global driver/provisioner config
+│       ├── alloy/         # Alloy scenario
+│       │   ├── molecule.yml
+│       │   ├── prepare.yml
+│       │   ├── converge.yml
+│       │   └── verify.yml
+│       ├── grafana/       # Grafana scenario
+│       ├── loki/          # Loki scenario
+│       └── mimir/         # Mimir scenario
 ├── meta/
 │   ├── runtime.yml        # Ansible version requirements
 │   └── execution-environment.yml  # ansible-builder config
@@ -97,10 +123,6 @@ make clean                   # Remove build/, tests/, and .ansible/ directories
 │   ├── grafana/           # Grafana role
 │   ├── loki/              # Grafana Loki role
 │   └── mimir/             # Grafana Mimir role
-└── tests/
-    ├── integration/       # Integration tests
-    │   └── targets/
-    └── unit/              # Unit tests
 ```
 
 ## Code Style Guidelines
@@ -118,7 +140,7 @@ make clean                   # Remove build/, tests/, and .ansible/ directories
   ```yaml
   ansible.builtin.debug:
   ansible.builtin.template:
-  ansible.builtin.service:
+  ansible.builtin.systemd_service:
   ```
 - Quote task names:
   ```yaml
@@ -193,6 +215,8 @@ Install required tools:
 pipx install ansible-lint
 pipx install antsibull-changelog
 pipx install aar-doc
+pipx install molecule
+pipx install molecule-plugins[podman]
 ```
 
 Ansible Core 2.18.0+ is required.
@@ -203,5 +227,5 @@ Ansible Core 2.18.0+ is required.
 2. Run `make test.sanity` before pushing
 3. Add changelog fragments for user-visible changes
 4. Write unit tests for plugins/modules in `tests/unit/`
-5. Write integration tests in `tests/integration/targets/`
+5. Write integration tests in `extensions/molecule/<scenario>/`
 6. Update REFERENCE.md when changing role defaults or argument specs (run `make docs role=<name>`)

@@ -1,0 +1,52 @@
+---
+- name: Verify
+  hosts: instance
+  become: true
+  tasks:
+    - name: "Verify grafana package is installed"
+      ansible.builtin.package_facts:
+        manager: auto
+
+    - name: "Assert grafana package is installed"
+      ansible.builtin.assert:
+        that:
+          - "'grafana' in ansible_facts.packages"
+        fail_msg: "grafana package is not installed."
+        success_msg: "grafana package is installed."
+
+    - name: "Verify grafana apt repository file exists"
+      ansible.builtin.stat:
+        path: /etc/apt/sources.list.d/grafana.sources
+      register: repo_stat
+
+    - name: "Assert grafana repository is configured"
+      ansible.builtin.assert:
+        that:
+          - repo_stat.stat.exists
+        fail_msg: "Grafana apt repository is not configured."
+        success_msg: "Grafana apt repository is configured."
+
+    - name: "Verify grafana config directory exists"
+      ansible.builtin.stat:
+        path: /etc/grafana
+      register: config_dir
+
+    - name: "Assert config directory exists"
+      ansible.builtin.assert:
+        that:
+          - config_dir.stat.exists
+          - config_dir.stat.isdir
+        fail_msg: "Grafana config directory does not exist."
+        success_msg: "Grafana config directory exists."
+
+    - name: "Gather service facts"
+      ansible.builtin.service_facts:
+
+    - name: "Assert grafana-server service is enabled and running"
+      ansible.builtin.assert:
+        that:
+          - "'grafana-server.service' in ansible_facts.services"
+          - ansible_facts.services['grafana-server.service'].status == 'enabled'
+          - ansible_facts.services['grafana-server.service'].state == 'running'
+        fail_msg: "grafana-server service is not enabled or running."
+        success_msg: "grafana-server service is enabled and running."
