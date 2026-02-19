@@ -1,0 +1,14 @@
+---
+version: 3
+
+images:
+  base_image:
+    name: quay.io/ansible-community/test-image:debian-13-trixie
+
+dependencies:
+  ansible_core:
+    package_pip: ansible-core
+  ansible_runner:
+    package_pip: ansible-runner
+  python_interpreter:
+    package_system: python3

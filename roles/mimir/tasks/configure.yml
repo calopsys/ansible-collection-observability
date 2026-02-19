@@ -1,0 +1,31 @@
+---
+- name: "Deploy mimir env vars."
+  ansible.builtin.template:
+    src: "{{ calopsys_mimir_env_template }}"
+    dest: "{{ calopsys_mimir_env_dir }}/mimir"
+    owner: root
+    group: root
+    mode: "0600"
+  when: calopsys_mimir_env_template is defined and calopsys_mimir_env_template | length>0
+  notify: "systemctl restart mimir"
+
+- name: "Deploy mimir.yaml configuration."
+  ansible.builtin.template:
+    src: "{{ calopsys_mimir_config_template }}"
+    dest: "{{ calopsys_mimir_config_dir }}/config.yml"
+    owner: root
+    group: mimir
+    mode: "0640"
+  when: calopsys_mimir_config_template is defined and calopsys_mimir_config_template | length>0
+  notify: "systemctl restart mimir"
+
+- name: "Create mimir tsdb persistent directories."
+  ansible.builtin.file:
+    name: "/var/lib/mimir/{{ item }}"
+    owner: mimir
+    group: mimir
+    mode: "0700"
+    state: directory
+  loop:
+    - tsdb
+    - tsdb-sync

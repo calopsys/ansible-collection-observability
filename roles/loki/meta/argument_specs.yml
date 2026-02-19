@@ -1,0 +1,41 @@
+---
+argument_specs:
+  main:
+    short_description: "Install and configure a loki instance on Debian systems."
+    options:
+      calopsys_loki_env_dir:
+        type: "str"
+        description: "Remote path to the directory containing environment configs."
+        default: "/etc/default"
+      calopsys_loki_config_dir:
+        type: "str"
+        description: "Remote path to the loki configurations directory."
+        default: "/etc/loki"
+      calopsys_loki_config_template:
+        type: "str"
+        description: "Local path to the loki configuration template."
+      calopsys_loki_env_template:
+        type: "str"
+        description: "Local path to the loki environment config template."
+      calopsys_loki_standalone_retention_period:
+        type: "str"
+        description: "When using the standalone template, configure the log retention period. Defaults to 1 month."
+        default: "365d"
+      calopsys_loki_standalone_s3_endpoint:
+        type: "str"
+        description: "When using the standalone template, the S3 endpoint."
+      calopsys_loki_standalone_s3_accesskey:
+        type: "str"
+        description: "When using the standalone template, the S3 accesskey."
+        no_log: true
+      calopsys_loki_standalone_s3_secretkey:
+        type: "str"
+        description: "When using the standalone template, the S3 secretkey."
+        no_log: true
+      calopsys_loki_standalone_s3_bucket:
+        type: "str"
+        description: "When using the standalone template, the S3 bucket."
+      calopsys_loki_standalone_log_level:
+        type: "str"
+        description: "Required when using the 'standalone_s3' template, specifies the log level for the loki daemon."
+        default: "warn"

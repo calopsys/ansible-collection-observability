@@ -1,0 +1,26 @@
+---
+- name: "Ensure calopsys_alloy_group exists."
+  ansible.builtin.group:
+    name: "{{ calopsys_alloy_group }}"
+
+- name: "Ensure calopsys_alloy_user exists and is in the right group."
+  ansible.builtin.user:
+    name: "{{ calopsys_alloy_user }}"
+    group: "{{ calopsys_alloy_group }}"
+
+- name: "Create alloy.service override directory."
+  ansible.builtin.file:
+    name: "/etc/systemd/system/alloy.service.d"
+    owner: root
+    group: root
+    mode: "0750"
+    state: directory
+
+- name: "Deploy alloy.service override config."
+  ansible.builtin.template:
+    src: systemd_override.j2
+    dest: "/etc/systemd/system/alloy.service.d/override.conf"
+    owner: root
+    group: root
+    mode: "0640"
+  notify: "systemctl daemon-reload"

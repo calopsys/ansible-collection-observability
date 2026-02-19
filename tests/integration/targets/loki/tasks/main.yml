@@ -1,0 +1,97 @@
+---
+- name: "Test loki role installation."
+  block:
+    - name: "Import loki role."
+      ansible.builtin.import_role:
+        name: calopsys.observability.loki
+      vars:
+        calopsys_loki_config_template: standalone_s3.yml.j2
+        calopsys_loki_standalone_s3_endpoint: "http://localhost:9000"
+        calopsys_loki_standalone_s3_bucket: "loki"
+        calopsys_loki_standalone_s3_accesskey: "test"
+        calopsys_loki_standalone_s3_secretkey: "test"
+
+    - name: "Verify loki package is installed."
+      ansible.builtin.package_facts:
+        manager: auto
+      no_log: true
+
+    - name: "Assert loki package is installed."
+      ansible.builtin.assert:
+        that:
+          - "'loki' in ansible_facts.packages"
+        fail_msg: "loki package is not installed."
+        success_msg: "loki package is installed."
+
+    - name: "Verify grafana apt repository file exists."
+      ansible.builtin.stat:
+        path: /etc/apt/sources.list.d/grafana.sources
+      register: repo_stat
+
+    - name: "Assert grafana repository is configured."
+      ansible.builtin.assert:
+        that:
+          - repo_stat.stat.exists
+        fail_msg: "Grafana apt repository is not configured."
+        success_msg: "Grafana apt repository is configured."
+
+- name: "Test loki role configuration."
+  block:
+    - name: "Verify loki config directory exists."
+      ansible.builtin.stat:
+        path: /etc/loki
+      register: config_dir_stat
+
+    - name: "Assert config directory exists."
+      ansible.builtin.assert:
+        that:
+          - config_dir_stat.stat.exists
+          - config_dir_stat.stat.isdir
+        fail_msg: "Loki config directory does not exist."
+        success_msg: "Loki config directory exists."
+
+    - name: "Verify loki config file exists."
+      ansible.builtin.stat:
+        path: /etc/loki/config.yml
+      register: config_file_stat
+
+    - name: "Assert config file exists."
+      ansible.builtin.assert:
+        that:
+          - config_file_stat.stat.exists
+        fail_msg: "Loki config file does not exist."
+        success_msg: "Loki config file exists."
+
+- name: "Test loki role service."
+  block:
+    - name: "Get service facts."
+      ansible.builtin.service_facts:
+      no_log: true
+
+    - name: "Assert loki service is enabled."
+      ansible.builtin.assert:
+        that:
+          - "'loki' in ansible_facts.services"
+          - "ansible_facts.services['loki'].status == 'enabled'"
+        fail_msg: "loki service is not enabled."
+        success_msg: "loki service is enabled."
+
+- name: "Test loki role idempotency."
+  block:
+    - name: "Import loki role again for idempotency check."
+      ansible.builtin.import_role:
+        name: calopsys.observability.loki
+      vars:
+        calopsys_loki_config_template: standalone_s3.yml.j2
+        calopsys_loki_standalone_s3_endpoint: "http://localhost:9000"
+        calopsys_loki_standalone_s3_bucket: "loki"
+        calopsys_loki_standalone_s3_accesskey: "test"
+        calopsys_loki_standalone_s3_secretkey: "test"
+      register: idempotency_result
+
+    - name: "Assert role is idempotent."
+      ansible.builtin.assert:
+        that:
+          - not idempotency_result.changed
+        fail_msg: "Role is not idempotent."
+        success_msg: "Role is idempotent."

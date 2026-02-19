@@ -1,0 +1,24 @@
+---
+namespace: calopsys
+name: observability
+readme: README.md
+authors:
+  - Calopsys <tech@calopsys.fr>
+license_file: 'LICENSE'
+repository: https://github.com/calopsys/ansible-collection-observability
+issues: https://github.com/calopsys/ansible-collection-observability/issues
+documentation: https://github.com/calopsys/ansible-collection-observability
+homepage: https://www.calopsys.fr
+tags: ['linux']
+
+version: 1.0.0
+description: Installs, manages and configure the Grafana LGTM stack on Debian systems.
+dependencies: {}
+build_ignore:
+  - .gitignore
+  - .ansible-lint
+  - .github
+  - build
+  - changelogs/fragments
+  - tests
+  - Makefile

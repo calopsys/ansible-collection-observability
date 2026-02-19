@@ -1,0 +1,12 @@
+---
+- name: "Import install.yml."
+  ansible.builtin.import_tasks: "install.yml"
+  tags: ["calopsys_grafana_install"]
+
+- name: "Import configure.yml."
+  ansible.builtin.import_tasks: "configure.yml"
+  tags: ["calopsys_grafana_configure"]
+
+- name: "Import services.yml."
+  ansible.builtin.import_tasks: "services.yml"
+  tags: ["calopsys_grafana_services"]

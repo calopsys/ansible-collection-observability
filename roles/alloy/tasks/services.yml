@@ -1,0 +1,6 @@
+---
+- name: "Ensure alloy is started and enabled."
+  ansible.builtin.service:
+    name: "alloy"
+    state: started
+    enabled: true
