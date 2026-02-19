@@ -108,16 +108,15 @@ Each role has its own set of variables documented in the respective `REFERENCE.m
 
 ## Development
 
-### Linting
-```bash
-make lint
-```
-
 ### Testing
 ```bash
-make test.sanity
-make testfull
+make test.sanity              # Run ansible-test sanity
+make molecule                 # Run molecule tests for all roles
+make molecule role=grafana    # Run molecule tests for a specific role
+make test                     # Run lint, sanity, and molecule tests
 ```
+
+Molecule tests use podman and include idempotency verification (runs the role twice to ensure no changes on second run).
 
 ### Building
 ```bash

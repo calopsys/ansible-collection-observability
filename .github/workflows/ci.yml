@@ -27,38 +27,36 @@ jobs:
           testing-type: sanity
           pull-request-change-detection: false
 
-  units:
-    name: Units
+  molecule:
+    name: Molecule
     runs-on: ubuntu-latest
     steps:
-      - name: Perform unit testing
-        uses: ansible-community/ansible-test-gh-action@release/v1
-        with:
-          ansible-core-version: stable-2.20
-          testing-type: units
-          pull-request-change-detection: false
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-  integration:
-    name: Integration (debian-13-trixie)
-    runs-on: ubuntu-latest
-    steps:
-      - name: Perform integration testing
-        uses: ansible-community/ansible-test-gh-action@release/v1
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          ansible-core-version: stable-2.20
-          target-python-version: "3.13"
-          testing-type: integration
-          test-deps: >-
-            ansible-community.images
-          docker-image: quay.io/ansible-community/test-image:debian-13-trixie
-          pull-request-change-detection: false
+          python-version: "3.13"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install ansible-core molecule molecule-plugins[podman]
+
+      - name: Install collection
+        run: |
+          mkdir -p ~/.ansible/collections/ansible_collections/calopsys
+          ln -s $GITHUB_WORKSPACE ~/.ansible/collections/ansible_collections/calopsys/observability
+
+      - name: Run Molecule tests
+        run: molecule test --all
 
   check:
     if: always()
     needs:
       - sanity
-      - units
-      - integration
+      - molecule
     runs-on: ubuntu-latest
     steps:
       - name: Decide whether the needed jobs succeeded or failed

@@ -1,0 +1,40 @@
+---
+- name: Verify
+  hosts: instance
+  become: true
+  tasks:
+    - name: "Verify loki package is installed"
+      ansible.builtin.package_facts:
+        manager: auto
+
+    - name: "Assert loki package is installed"
+      ansible.builtin.assert:
+        that:
+          - "'loki' in ansible_facts.packages"
+        fail_msg: "loki package is not installed."
+        success_msg: "loki package is installed."
+
+    - name: "Verify loki config directory exists"
+      ansible.builtin.stat:
+        path: /etc/loki
+      register: config_dir
+
+    - name: "Assert config directory exists"
+      ansible.builtin.assert:
+        that:
+          - config_dir.stat.exists
+          - config_dir.stat.isdir
+        fail_msg: "Loki config directory does not exist."
+        success_msg: "Loki config directory exists."
+
+    - name: "Gather service facts"
+      ansible.builtin.service_facts:
+
+    - name: "Assert loki service is enabled and running"
+      ansible.builtin.assert:
+        that:
+          - "'loki.service' in ansible_facts.services"
+          - ansible_facts.services['loki.service'].status == 'enabled'
+          - ansible_facts.services['loki.service'].state == 'running'
+        fail_msg: "loki service is not enabled or running."
+        success_msg: "loki service is enabled and running."
