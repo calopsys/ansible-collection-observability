@@ -1,0 +1,21 @@
+---
+- name: "Configuration grafana."
+  ansible.builtin.template:
+    src: "{{ calopsys_grafana_config_template }}"
+    dest: "{{ calopsys_grafana_config_dir }}/grafana.ini"
+    owner: root
+    group: grafana
+    mode: "0640"
+  when: calopsys_grafana_config_template is defined and calopsys_grafana_config_template | length>0
+  notify: "systemctl restart grafana-server"
+
+- name: "Deploy provisioning resources."
+  ansible.builtin.template:
+    src: "{{ item.src }}"
+    dest: "{{ calopsys_grafana_config_dir }}/provisioning/{{ item.dest }}"
+    owner: root
+    group: grafana
+    mode: "0640"
+  when: calopsys_grafana_provisioning is defined and calopsys_grafana_provisioning | length>0
+  notify: "systemctl restart grafana-server"
+  loop: "{{ calopsys_grafana_provisioning }}"

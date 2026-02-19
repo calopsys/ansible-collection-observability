@@ -1,0 +1,14 @@
+---
+dependencies: []
+
+galaxy_info:
+  author: Calopsys
+  company: Calopsys
+  description: This role installs, manages and configures a alloy instance on Debian systems.
+  license: MIT
+  min_ansible_version: 2.18.0
+  issue_tracker_url: https://github.com/calopsys/ansible-collection-observability/issues
+  platforms:
+    - name: Debian
+      versions:
+        - all

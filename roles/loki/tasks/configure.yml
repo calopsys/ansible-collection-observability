@@ -1,0 +1,28 @@
+---
+- name: "Deploy loki env vars."
+  ansible.builtin.template:
+    src: "{{ calopsys_loki_env_template }}"
+    dest: "{{ calopsys_loki_env_dir }}/loki"
+    owner: root
+    group: root
+    mode: "0600"
+  when: calopsys_loki_env_template is defined and calopsys_loki_env_template | length>0
+  notify: "systemctl restart loki"
+
+- name: "Deploy loki.yaml configuration."
+  ansible.builtin.template:
+    src: "{{ calopsys_loki_config_template }}"
+    dest: "{{ calopsys_loki_config_dir }}/config.yml"
+    owner: root
+    group: loki
+    mode: "0640"
+  when: calopsys_loki_config_template is defined and calopsys_loki_config_template | length>0
+  notify: "systemctl restart loki"
+
+- name: "Create loki working directory."
+  ansible.builtin.file:
+    name: "/var/lib/loki"
+    owner: loki
+    group: loki
+    mode: "0700"
+    state: directory

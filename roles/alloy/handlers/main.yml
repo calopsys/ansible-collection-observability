@@ -1,0 +1,14 @@
+---
+- name: "systemctl reload alloy"
+  ansible.builtin.service:
+    name: "alloy"
+    state: reloaded
+
+- name: "systemctl restart alloy"
+  ansible.builtin.service:
+    name: "alloy"
+    state: restarted
+
+- name: "systemctl daemon-reload"
+  ansible.builtin.systemd:
+    daemon_reload: true

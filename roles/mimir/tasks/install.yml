@@ -1,0 +1,19 @@
+---
+- name: "Add Grafana apt repository."
+  ansible.builtin.deb822_repository:
+    name: "grafana"
+    types: deb
+    uris: "https://apt.grafana.com/"
+    suites: "stable"
+    components:
+      - main
+    architectures:
+      - "{{ 'amd64' if ansible_architecture == 'x86_64' else 'arm64' if ansible_architecture == 'aarch64' else ansible_architecture }}"
+    signed_by: "https://apt.grafana.com/gpg.key"
+
+- name: "Install mimir latest version."
+  ansible.builtin.apt:
+    name:
+      - mimir
+    update_cache: true
+    install_recommends: false

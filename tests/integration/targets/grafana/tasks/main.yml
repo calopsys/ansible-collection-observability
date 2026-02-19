@@ -1,0 +1,73 @@
+---
+- name: "Test grafana role installation."
+  block:
+    - name: "Import grafana role."
+      ansible.builtin.import_role:
+        name: calopsys.observability.grafana
+
+    - name: "Verify grafana package is installed."
+      ansible.builtin.package_facts:
+        manager: auto
+      no_log: true
+
+    - name: "Assert grafana package is installed."
+      ansible.builtin.assert:
+        that:
+          - "'grafana' in ansible_facts.packages"
+        fail_msg: "grafana package is not installed."
+        success_msg: "grafana package is installed."
+
+    - name: "Verify grafana apt repository file exists."
+      ansible.builtin.stat:
+        path: /etc/apt/sources.list.d/grafana.sources
+      register: repo_stat
+
+    - name: "Assert grafana repository is configured."
+      ansible.builtin.assert:
+        that:
+          - repo_stat.stat.exists
+        fail_msg: "Grafana apt repository is not configured."
+        success_msg: "Grafana apt repository is configured."
+
+- name: "Test grafana role configuration."
+  block:
+    - name: "Verify grafana config directory exists."
+      ansible.builtin.stat:
+        path: /etc/grafana
+      register: config_dir_stat
+
+    - name: "Assert config directory exists."
+      ansible.builtin.assert:
+        that:
+          - config_dir_stat.stat.exists
+          - config_dir_stat.stat.isdir
+        fail_msg: "Grafana config directory does not exist."
+        success_msg: "Grafana config directory exists."
+
+- name: "Test grafana role service."
+  block:
+    - name: "Get service facts."
+      ansible.builtin.service_facts:
+      no_log: true
+
+    - name: "Assert grafana-server service is enabled."
+      ansible.builtin.assert:
+        that:
+          - "'grafana-server' in ansible_facts.services"
+          - "ansible_facts.services['grafana-server'].status == 'enabled'"
+        fail_msg: "grafana-server service is not enabled."
+        success_msg: "grafana-server service is enabled."
+
+- name: "Test grafana role idempotency."
+  block:
+    - name: "Import grafana role again for idempotency check."
+      ansible.builtin.import_role:
+        name: calopsys.observability.grafana
+      register: idempotency_result
+
+    - name: "Assert role is idempotent."
+      ansible.builtin.assert:
+        that:
+          - not idempotency_result.changed
+        fail_msg: "Role is not idempotent."
+        success_msg: "Role is idempotent."

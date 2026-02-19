@@ -1,0 +1,88 @@
+// {{ ansible_managed }}
+
+logging {
+  level = "info"
+}
+
+/**********
+* METRICS *
+**********/
+
+prometheus.exporter.cadvisor "default" {
+  docker_host = "unix:///var/run/docker.sock"
+  storage_duration = "5m"
+}
+
+prometheus.exporter.unix "default" {
+  include_exporter_metrics = true
+  disable_collectors       = ["mdadm"]
+}
+
+prometheus.scrape "default" {
+  targets = array.concat(
+    prometheus.exporter.unix.default.targets,
+    prometheus.exporter.cadvisor.default.targets,
+  )
+  scrape_interval = "10s"
+
+  forward_to = [prometheus.remote_write.default.receiver]
+}
+
+prometheus.remote_write "default" {
+  endpoint {
+    url = "{{ calopsys_alloy_prometheus_endpoint_url }}"
+  }
+}
+
+/*******
+* LOGS *
+*******/
+
+// expose container as "targets"
+discovery.docker "default" {
+  host = "unix:///var/run/docker.sock"
+}
+
+// Relabel the service_name label from the container name.
+discovery.relabel "logs_integrations_docker" {
+  targets = []
+
+  rule {
+    source_labels = ["__meta_docker_container_name"]
+    regex = "/(.*)"
+    target_label = "service_name"
+  }
+}
+
+// Get logs from docker containers
+loki.source.docker "default" {
+  host       = "unix:///var/run/docker.sock"
+  targets    = discovery.docker.default.targets
+  labels     = {"source" = "docker"}
+  relabel_rules = discovery.relabel.logs_integrations_docker.rules
+  forward_to = [loki.process.default.receiver]
+}
+
+loki.process "default" {
+  forward_to = [loki.write.default.receiver]
+
+  // Drop logs >24h ago
+  stage.drop {
+      older_than          = "24h"
+      drop_counter_reason = "too old"
+  }
+
+  // Add the 'instance' label to every log
+  stage.static_labels {
+    values = {
+      "instance" = constants.hostname,
+    }
+  }
+}
+
+// Write logs to loki
+loki.write "default" {
+  endpoint {
+    url = "{{ calopsys_alloy_loki_endpoint_url }}"
+  }
+}

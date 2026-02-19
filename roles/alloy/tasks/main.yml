@@ -1,0 +1,20 @@
+---
+- name: "Import install.yml."
+  ansible.builtin.import_tasks: "install.yml"
+  tags: ["calopsys_alloy_install"]
+
+- name: "Import user.yml."
+  ansible.builtin.import_tasks: "user.yml"
+  when: calopsys_alloy_user != 'alloy'
+  tags: ["calopsys_alloy_user"]
+
+- name: "Flush handlers."
+  ansible.builtin.meta: flush_handlers
+
+- name: "Import configure.yml."
+  ansible.builtin.import_tasks: "configure.yml"
+  tags: ["calopsys_alloy_configure"]
+
+- name: "Import services.yml."
+  ansible.builtin.import_tasks: "services.yml"
+  tags: ["calopsys_alloy_services"]

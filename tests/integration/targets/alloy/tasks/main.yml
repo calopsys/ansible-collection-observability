@@ -1,0 +1,86 @@
+---
+- name: "Test alloy role installation."
+  block:
+    - name: "Import alloy role."
+      ansible.builtin.import_role:
+        name: calopsys.observability.alloy
+
+    - name: "Verify alloy package is installed."
+      ansible.builtin.package_facts:
+        manager: auto
+      no_log: true
+
+    - name: "Assert alloy package is installed."
+      ansible.builtin.assert:
+        that:
+          - "'alloy' in ansible_facts.packages"
+        fail_msg: "alloy package is not installed."
+        success_msg: "alloy package is installed."
+
+    - name: "Verify grafana apt repository file exists."
+      ansible.builtin.stat:
+        path: /etc/apt/sources.list.d/grafana.sources
+      register: repo_stat
+
+    - name: "Assert grafana repository is configured."
+      ansible.builtin.assert:
+        that:
+          - repo_stat.stat.exists
+        fail_msg: "Grafana apt repository is not configured."
+        success_msg: "Grafana apt repository is configured."
+
+- name: "Test alloy role configuration."
+  block:
+    - name: "Verify alloy config directory exists."
+      ansible.builtin.stat:
+        path: /etc/alloy
+      register: config_dir_stat
+
+    - name: "Assert config directory exists."
+      ansible.builtin.assert:
+        that:
+          - config_dir_stat.stat.exists
+          - config_dir_stat.stat.isdir
+        fail_msg: "Alloy config directory does not exist."
+        success_msg: "Alloy config directory exists."
+
+    - name: "Verify alloy environment directory exists."
+      ansible.builtin.stat:
+        path: /etc/default
+      register: env_dir_stat
+
+    - name: "Assert environment directory exists."
+      ansible.builtin.assert:
+        that:
+          - env_dir_stat.stat.exists
+          - env_dir_stat.stat.isdir
+        fail_msg: "Environment directory does not exist."
+        success_msg: "Environment directory exists."
+
+- name: "Test alloy role service."
+  block:
+    - name: "Get service facts."
+      ansible.builtin.service_facts:
+      no_log: true
+
+    - name: "Assert alloy service is enabled."
+      ansible.builtin.assert:
+        that:
+          - "'alloy' in ansible_facts.services"
+          - "ansible_facts.services['alloy'].status == 'enabled'"
+        fail_msg: "alloy service is not enabled."
+        success_msg: "alloy service is enabled."
+
+- name: "Test alloy role idempotency."
+  block:
+    - name: "Import alloy role again for idempotency check."
+      ansible.builtin.import_role:
+        name: calopsys.observability.alloy
+      register: idempotency_result
+
+    - name: "Assert role is idempotent."
+      ansible.builtin.assert:
+        that:
+          - not idempotency_result.changed
+        fail_msg: "Role is not idempotent."
+        success_msg: "Role is idempotent."

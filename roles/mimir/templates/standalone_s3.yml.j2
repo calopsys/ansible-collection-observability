@@ -1,0 +1,65 @@
+---
+{{ ansible_managed | comment }}
+
+# Monolithic mode + alertmanager
+target: all
+
+# Single tenant, standalone
+multitenancy_enabled: false
+no_auth_tenant: "{{ calopsys_mimir_standalone_tenant_name }}"
+
+# Env vars are populated via the "-config.expand-env=true" CLI parameter
+# on debian/ubuntu these should be set in /etc/default/mimir
+common:
+  storage:
+    backend: s3
+    s3:
+      endpoint: ${MIMIR_S3_ENDPOINT}
+      access_key_id: ${MIMIR_S3_ACCESSKEY}
+      secret_access_key: ${MIMIR_S3_SECRETKEY}
+      bucket_name: ${MIMIR_S3_BUCKET}
+
+blocks_storage:
+  # path prefix in the s3 storage
+  storage_prefix: blocks
+
+  # local dir for tsdb, needs persistence between restarts
+  # on debian/ubuntu default systemd unit has a WorkingDirectory parameter set to /var/lib/mimir
+  tsdb:
+    dir: ./ingester
+
+  bucket_store:
+    # local dir for "synchronized TSDB index headers", persistence not required but "highly recommended" 
+    # on debian/ubuntu default systemd unit has a WorkingDirectory parameter set to /var/lib/mimir
+    sync_dir: ./tsdb-sync
+
+limits:
+  # Delete from storage metrics data older than 3 months.
+  compactor_blocks_retention_period: 12w
+  # Needed for series container_blkio_device_usage_total
+  max_label_names_per_series: 35
+  # 8h is the time grafana alloy keeps its wal on the machine https://grafana.com/docs/alloy/latest/reference/components/prometheus/prometheus.remote_write/#wal
+  out_of_order_time_window: 8h
+  # opinionated defaults for standalone, resize as needed
+  ingestion_rate: 200000
+  ingestion_burst_size: 400000
+  max_global_series_per_user: 0
+
+# Configure ingester and store_gateway for single node
+ingester:
+  ring:
+    kvstore:
+      store: inmemory
+    replication_factor: 1
+    min_ready_duration: 0s
+    final_sleep: 0s
+
+store_gateway:
+  sharding_ring:
+    kvstore:
+      store: inmemory
+    replication_factor: 1
+
+# Disable Telemetry
+usage_stats:
+  enabled: false

@@ -1,0 +1,17 @@
+---
+argument_specs:
+  main:
+    short_description: "Install and configure a grafana instance on Debian systems."
+    options:
+      calopsys_grafana_config_dir:
+        type: "str"
+        description: "Absolute path to the grafana configuration directory."
+        default: "/etc/grafana"
+      calopsys_grafana_config_template:
+        type: "str"
+        description: "Local path to the grafana.ini configuration template."
+      calopsys_grafana_provisioning:
+        type: "list"
+        elements: "dict"
+        description: "List of provisioning resources to deploy."
+        default: []

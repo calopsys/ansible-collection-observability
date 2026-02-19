@@ -1,0 +1,63 @@
+---
+{{ ansible_managed | comment }}
+
+# Monolithic mode
+target: all
+
+# Disable auth and tenants
+auth_enabled: false
+
+# Disable clustering
+common:
+  ring:
+    instance_addr: 127.0.0.1
+    kvstore:
+      store: inmemory
+  replication_factor: 1
+
+# Configure log indexes
+schema_config:
+  configs:
+  - from: 2025-06-01
+    store: tsdb
+    object_store: s3
+    schema: v13
+    index:
+      prefix: index_
+      period: 24h
+
+storage_config:
+  # Configure local tsdb, persists between restarts
+  # By default we deploy an override to the unit with WorkingDir to /var/lib/loki
+  tsdb_shipper:
+    active_index_directory: ./index
+    cache_location: ./index_cache
+    cache_ttl: 24h
+  # Env vars are populated via the "-config.expand-env=true" CLI parameter
+  # By default we deploy an override to the unit with EnvironnementFile to /etc/default/loki
+  use_thanos_objstore: true
+  object_store:
+    s3:
+      bucket_name: ${LOKI_S3_BUCKET}
+      endpoint: ${LOKI_S3_ENDPOINT}
+      access_key_id: ${LOKI_S3_ACCESSKEY}
+      secret_access_key: ${LOKI_S3_SECRETKEY}
+
+ingester:
+  wal:
+    dir: ./wal
+
+# Configure compactor for retention
+compactor:
+  retention_enabled: true
+  delete_request_store: s3
+  working_directory: ./compactor
+
+limits_config:
+  retention_period: {{ calopsys_loki_standalone_retention_period }}
+
+analytics:
+  reporting_enabled: false
+
+server:
+  log_level: {{ calopsys_loki_standalone_log_level }}

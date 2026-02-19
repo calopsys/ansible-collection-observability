@@ -1,0 +1,35 @@
+---
+argument_specs:
+  main:
+    short_description: "Install and configure a alloy instance on Debian systems."
+    options:
+      calopsys_alloy_user:
+        type: "str"
+        description: "The unix user to run alloy as."
+        default: "alloy"
+      calopsys_alloy_group:
+        type: "str"
+        description: "The primary group of the alloy user."
+        default: "{{ calopsys_alloy_user }}"
+      calopsys_alloy_config_template:
+        type: "str"
+        description: "Local path to the alloy configuration template."
+        default: "minimal.j2"
+      calopsys_alloy_config_dir:
+        type: "str"
+        description: "Absolute path to the alloy configurations directory."
+        default: "/etc/alloy"
+      calopsys_alloy_env_template:
+        type: "str"
+        description: "Local path to the alloy environment config file."
+        default: "default_env.j2"
+      calopsys_alloy_env_dir:
+        type: "str"
+        description: "Absolute path to the environment configurations directory."
+        default: "/etc/default"
+      calopsys_alloy_prometheus_endpoint_url:
+        type: "str"
+        description: "Required when using config templates provided by the role, url of the prometheus endpoint to remote_write to."
+      calopsys_alloy_loki_endpoint_url:
+        type: "str"
+        description: "Required when using config templates provided by the role, url of the loki endpoint to send logs to."

@@ -1,0 +1,41 @@
+---
+argument_specs:
+  main:
+    short_description: "Install and configure a mimir instance on Debian systems."
+    options:
+      calopsys_mimir_config_dir:
+        type: "str"
+        description: "Absolute path to the mimir configuration directory."
+        default: "/etc/mimir"
+      calopsys_mimir_config_template:
+        type: "str"
+        description: "Local path to the configuration template."
+      calopsys_mimir_env_dir:
+        type: "str"
+        description: "Absolute path to the directory containing environment configurations."
+        default: "/etc/default"
+      calopsys_mimir_env_template:
+        type: "str"
+        description: "Local path to the env file template."
+      calopsys_mimir_standalone_tenant_name:
+        type: "str"
+        description: "Required when using the 'standalone_s3' template, specifies the tenant name."
+        default: "anonymous"
+      calopsys_mimir_standalone_s3_endpoint:
+        type: "str"
+        description: "Required when using the 'standalone_s3' template, specifies the s3 endpoint."
+      calopsys_mimir_standalone_s3_accesskey:
+        type: "str"
+        description: "Required when using the 'standalone_s3' template, specifies the s3 access key."
+        no_log: true
+      calopsys_mimir_standalone_s3_secretkey:
+        type: "str"
+        description: "Required when using the 'standalone_s3' template, specifies the s3 secret key."
+        no_log: true
+      calopsys_mimir_standalone_s3_bucket:
+        type: "str"
+        description: "Required when using the 'standalone_s3' template, specifies the s3 bucket."
+      calopsys_mimir_standalone_log_level:
+        type: "str"
+        description: "Required when using the 'standalone_s3' template, specifies the log level for the mimir daemon."
+        default: "warn"
