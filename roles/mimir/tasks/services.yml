@@ -4,7 +4,7 @@
     name: "/etc/systemd/system/mimir.service.d"
     owner: root
     group: root
-    mode: "0700"
+    mode: "0750"
     state: directory
 
 - name: "Deploy mimir systemd unit override."
@@ -13,13 +13,13 @@
     dest: "/etc/systemd/system/mimir.service.d/override.conf"
     owner: root
     group: root
-    mode: "0600"
+    mode: "0640"
   notify:
     - "systemctl daemon-reload"
     - "systemctl restart mimir"
 
 - name: "Ensure mimir is started and enabled."
-  ansible.builtin.service:
+  ansible.builtin.systemd_service:
     name: "mimir"
     state: started
     enabled: true

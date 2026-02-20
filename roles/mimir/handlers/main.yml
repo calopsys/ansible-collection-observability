@@ -1,9 +1,9 @@
 ---
+- name: "systemctl daemon-reload"
+  ansible.builtin.systemd:
+    daemon_reload: true
+
 - name: "systemctl restart mimir"
   ansible.builtin.service:
     name: "mimir"
     state: restarted
-
-- name: "systemctl daemon-reload"
-  ansible.builtin.systemd:
-    daemon_reload: true
