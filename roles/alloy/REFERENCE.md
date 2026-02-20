@@ -22,7 +22,7 @@ Install and configure a alloy instance on Debian systems.
 |---|---|---|---|---|
 | calopsys_alloy_user | The unix user to run alloy as. | str | no | alloy |
 | calopsys_alloy_group | The primary group of the alloy user. | str | no | {{ calopsys_alloy_user }} |
-| calopsys_alloy_config_template | Local path to the alloy configuration template. | str | no | minimal.j2 |
+| calopsys_alloy_config_template | Local path to the alloy configuration template. | str | no |  |
 | calopsys_alloy_config_dir | Absolute path to the alloy configurations directory. | str | no | /etc/alloy |
 | calopsys_alloy_env_template | Local path to the alloy environment config file. | str | no | default_env.j2 |
 | calopsys_alloy_env_dir | Absolute path to the environment configurations directory. | str | no | /etc/default |

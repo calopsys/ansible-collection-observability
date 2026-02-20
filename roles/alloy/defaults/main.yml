@@ -4,8 +4,6 @@
 calopsys_alloy_user: alloy
 # The primary group of the alloy user.
 calopsys_alloy_group: '{{ calopsys_alloy_user }}'
-# Local path to the alloy configuration template.
-calopsys_alloy_config_template: minimal.j2
 # Absolute path to the alloy configurations directory.
 calopsys_alloy_config_dir: /etc/alloy
 # Local path to the alloy environment config file.

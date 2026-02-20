@@ -4,8 +4,9 @@
     src: "{{ calopsys_alloy_env_template }}"
     dest: "{{ calopsys_alloy_env_dir }}/alloy"
     owner: root
-    group: "root"
+    group: root
     mode: "0600"
+  when: calopsys_alloy_env_template is defined and calopsys_alloy_env_template | length > 0
   notify: "systemctl restart alloy"
 
 - name: "Deploy alloy configuration."
@@ -15,4 +16,5 @@
     owner: root
     group: "{{ calopsys_alloy_group }}"
     mode: "0640"
+  when: calopsys_alloy_config_template is defined and calopsys_alloy_config_template | length > 0
   notify: "systemctl reload alloy"

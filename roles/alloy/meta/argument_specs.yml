@@ -14,7 +14,6 @@ argument_specs:
       calopsys_alloy_config_template:
         type: "str"
         description: "Local path to the alloy configuration template."
-        default: "minimal.j2"
       calopsys_alloy_config_dir:
         type: "str"
         description: "Absolute path to the alloy configurations directory."
