@@ -1,6 +1,6 @@
 ---
 - name: "Override systemd unit with custom env."
-  when: calopsys_loki_env_template is defined and calopsys_loki_env_template | length>0
+  when: calopsys_loki_env_template is defined and calopsys_loki_env_template | length > 0
   block:
     - name: "Ensure loki systemd unit override directory."
       ansible.builtin.file:
