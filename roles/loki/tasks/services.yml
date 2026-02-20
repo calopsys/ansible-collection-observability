@@ -1,20 +1,25 @@
 ---
-- name: "Ensure loki systemd unit override directory."
-  ansible.builtin.file:
-    name: "/etc/systemd/system/loki.service.d"
-    owner: root
-    group: root
-    mode: "0755"
-    state: directory
+- name: "Override systemd unit with custom env."
+  when: calopsys_loki_env_template is defined and calopsys_loki_env_template | length>0
+  block:
+    - name: "Ensure loki systemd unit override directory."
+      ansible.builtin.file:
+        name: "/etc/systemd/system/loki.service.d"
+        owner: root
+        group: root
+        mode: "0750"
+        state: directory
 
-- name: "Deploy loki systemd unit override."
-  ansible.builtin.template:
-    src: "systemd_override.conf.j2"
-    dest: "/etc/systemd/system/loki.service.d/override.conf"
-    owner: root
-    group: root
-    mode: "0644"
-  notify: "systemctl daemon-reload"
+    - name: "Deploy loki systemd unit override."
+      ansible.builtin.template:
+        src: "systemd_override.conf.j2"
+        dest: "/etc/systemd/system/loki.service.d/override.conf"
+        owner: root
+        group: root
+        mode: "0640"
+      notify:
+        - "systemctl daemon-reload"
+        - "systemctl restart loki"
 
 - name: "Ensure loki is started and enabled."
   ansible.builtin.systemd_service:
